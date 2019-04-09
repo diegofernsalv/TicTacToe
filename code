@@ -1,0 +1,202 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class Player
+{
+public:
+    Player() {};
+    // Initializes player according to their name and symbol, while starting with a score of 0
+    Player(string p_name, char p_symbol) {name = p_name; score = 0; symbol = p_symbol;};
+    const string& get_name() const {return name;};         // returns player's name
+    const int& get_score() const {return score;};          // returns player's score
+    const string& get_symbol() const {return symbol;};     // returns player's symbol
+    void increase_score() {score++;};               // increments score by one when round is won
+private:
+    string name;        // player's name
+    int score;          // player's score
+    string symbol;      // player's symbol to be placed on board upon turn
+};
+
+/**
+Outputs each character of the 2D vector in the form of a board and does not return anything
+@param board 2D vector to be printed
+*/
+void printBoard(const vector<vector<string>>& board) {
+    for (size_t r = 0; r < 6; ++r) {
+        for (size_t c = 0; c < 6; ++c) {
+            cout << board[r][c];
+        }
+        cout << '\n';
+    }
+}
+
+/**
+Adds a given player's symbol to the board via a formula that converts the input row and column to the correct indices of the 2D vector.
+@param game_board 2D vector of the board that will have the player's symbol added
+@param player object player whose symbol will be added to board
+@param row the input row of the board to which the symbol will be added
+@param col the input column of the board to which the symbol will be added
+*/
+void symbol_to_board(vector<vector<string>>& game_board, const Player& player, const size_t& row, const size_t& col) {
+    /*
+     Since the row and column that the user inputs do not correspond to the actual row-column indices of the 2D vector, I developed a formula that would convert the input to the correct index. The formula is: Correct Index = (2*input) - 1
+     This formula applies to both row and column inputs.
+    */
+    size_t game_board_row = (2*row) - 1;        // converts row
+    size_t game_board_col = (2*col) - 1;        // converts column
+    
+    /*
+     The player's symbol is added to the position that they indicated in their input, where the indices are conversions of their input.
+    */
+    game_board[game_board_row][game_board_col] = player.get_symbol();
+}
+
+/**
+ A function that asks a given player what move they would like to make, takes their coordinate input, adds their symbol to the board, prints the board, and inputs the coordinate into the symbol matrix.
+ @param game_board 2D vector of the board that will have the player's symbol added
+ @param player object player whose move will be made
+ @param matrix 2D vector which represents a matrix of both player symbols.
+*/
+void player_move(vector<vector<string>>& game_board, const Player& player, vector<vector<string>>& matrix) {
+    cout << "It is " << player.get_name() << "'s turn." << '\n';    // exclaims that is player's turn
+    // asks for the coordinates of the board that the player would like to place their symbol on
+    cout << "Where would you like to play? Enter your row position and column position: row col: ";
+    size_t i_row, i_col;        // input row and column
+    cin >> i_row >> i_col;
+    
+    symbol_to_board(game_board, player, i_row, i_col);  // adds player's symbol to board
+    printBoard(game_board);         // prints updated board
+    
+    size_t row = i_row - 1;     // translates input row for the matrix
+    size_t col = i_col - 1;     // translates input column for the matrix
+    
+    matrix[row][col] = player.get_symbol();         // adds player's symbol to symbol matrix
+    
+}
+
+/**
+ function that checks if a given player has won the game. Returns true or false accordingly.
+ @param matrix 2D vector that represents the matrix of both player symbols.
+ @param player object player that will be checked for the win.
+*/
+bool player_won(const vector<vector<string>>& matrix, const Player& player) {
+    /*
+     If-else tree that checks for all possible 3-in-a-row positions in the symbol matrix. As soon as one of the conditions are true, it skips to end of tree and returns true. If it couldn't find 3-in-a-row of the player's symbol, it will return false.
+    */
+    if (matrix[0][0] == player.get_symbol() && matrix[0][1] == player.get_symbol() && matrix[0][2] == player.get_symbol()) {
+    }
+    else if (matrix[1][0] == player.get_symbol() && matrix[1][1] == player.get_symbol() && matrix[1][2] == player.get_symbol()) {
+    }
+    else if (matrix[2][0] == player.get_symbol() && matrix[2][1] == player.get_symbol() && matrix[2][2] == player.get_symbol()) {
+    }
+    else if (matrix[0][0] == player.get_symbol() && matrix[1][0] == player.get_symbol() && matrix[2][0] == player.get_symbol()) {
+    }
+    else if (matrix[0][1] == player.get_symbol() && matrix[1][1] == player.get_symbol() && matrix[2][1] == player.get_symbol()) {
+    }
+    else if (matrix[0][2] == player.get_symbol() && matrix[1][2] == player.get_symbol() && matrix[2][2] == player.get_symbol()) {
+    }
+    else if (matrix[0][0] == player.get_symbol() && matrix[1][1] == player.get_symbol() && matrix[2][2] == player.get_symbol()) {
+    }
+    else if (matrix[2][0] == player.get_symbol() && matrix[1][1] == player.get_symbol() && matrix[0][2] == player.get_symbol()) {
+    }
+    else {
+        return false;
+    }
+    return true;
+}
+
+int main()
+{
+    cout << "This is a Tic Tac Toe game!" << '\n';      // announcement
+    
+    cout << "How many rounds would you like to play? ";
+    int rounds;
+    cin >> rounds;             // user enters amount of rounds to play
+    cin.ignore();
+    
+    cout << "Please enter the name of player 1: ";
+    string p1name;
+    getline(cin, p1name);     // player one inputs name
+    
+    Player player_one(p1name, 'x');     // player one object created with respective symbol for game
+    
+    cout << "Thanks. Please enter the name of player 2: ";
+    string p2name;            // player two inputs name
+    getline(cin, p2name);
+    
+    Player player_two(p2name, 'o');     // player two object created with respective symbol for game
+    
+    cout << "Let the game begin!" << '\n';
+    
+    bool player_one_turn = true;        // is it player one's turn? yes!
+    
+    for (int r = 0; r < rounds; ++r) {      // for loop that plays each round until finished
+        // 2D string vector is initiliazed to represent an empty board at every start of round
+        vector<vector<string>> game_board { {" ", "1", " ", "2", " ", "3"},
+                                            {"1", " ", "|", " ", "|", " "},
+                                            {" ", "-", "-", "-", "-", "-"},
+                                            {"2", " ", "|", " ", "|", " "},
+                                            {" ", "-", "-", "-", "-", "-"},
+                                            {"3", " ", "|", " ", "|", " "} };
+        printBoard(game_board);     // prints the previously initialized empty board
+        /*
+         2D vector of strings that represents a matrix of only both players' symbols. This is the underlying game board that will be used to check who won and is updated at every turn.
+        */
+        vector<vector<string>> matrix { {" ", " ", " "},
+                                        {" ", " ", " "},
+                                        {" ", " ", " "} };
+        int spaces_left = 9;        // amount of spaces left on the board
+        bool winner = false;        // did someone win the round?
+        bool draw = false;          // was there a tie? (spaces_left = 0)
+        /*
+         While-loop that goes through each players turn for the given round indicated in the larger for loop. The condition keeps the loop going until there is a winner.
+        */
+        while (!winner) {
+            if (spaces_left == 0) {     // starts by checking if there are no spaces on the board (indicating a tie)
+                draw = true;
+                break;      // since there is a tie, break and continue for-loop into next round
+            }
+            if (player_one_turn) {      // checks if it is player one's turn
+                player_move(game_board, player_one, matrix);    // player one makes a move
+                if (player_won(matrix, player_one)) {       // if player won...
+                    cout << player_one.get_name() << " won the round!" << '\n'; // exclaim player has won
+                    player_one.increase_score();    // increase player's score by one
+                    winner = true;      // there is a winner of the round
+                }
+                player_one_turn = false;        // it is no longer player one's turn
+            }
+            else {      // does the exact same as previous if-statement for player two
+                player_move(game_board, player_two, matrix);
+                if (player_won(matrix, player_two)) {
+                    cout << player_two.get_name() << " won the round!" << '\n';
+                    player_two.increase_score();
+                    winner = true;
+                }
+                player_one_turn = true;
+            }
+            /*
+             Since either player one or two took a turn and didn't win at this point, there is one space left on the board.
+            */
+            --spaces_left;
+        }
+        if (draw) {         // if there was a draw...
+            cout << "Neither won this round." << '\n';      // exclamation
+        }       // else, this is the current score
+        cout << "Presently, " << player_one.get_name() << " has " << player_one.get_score() << " points and " << player_two.get_name() << " has " << player_two.get_score() << " points." << '\n';
+    }
+    // checks if player one has the higher score, and exclaims so if true
+    if (player_one.get_score() > player_two.get_score()) {
+        cout << player_one.get_name() << " has won the game!" << '\n';
+    }
+    // checks if player two has the higher score, and exclaims so if true
+    else if (player_two.get_score() > player_one.get_score()) {
+        cout << player_two.get_name() << " has won the game!" << '\n';
+    }
+    // if neither of the previous conditions were true, there must have been a draw. Exclaims so.
+    else {
+        cout << "It is a draw!" << '\n';
+    }
+}
